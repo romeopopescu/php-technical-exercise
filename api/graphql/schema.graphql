@@ -1,0 +1,40 @@
+type User {
+  id: Int!
+  hrId: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  department: String!
+  isActive: Boolean!
+}
+
+type SkippedRow {
+  line: Int!
+  errors: [String!]!
+}
+
+type ImportSummary {
+  rowsRead: Int!
+  created: Int!
+  updated: Int!
+  skipped: Int!
+  skippedRows: [SkippedRow!]!
+}
+
+input UpdateUserInput {
+  firstName: String
+  lastName: String
+  email: String
+  department: String
+  isActive: Boolean
+}
+
+type Query {
+  users: [User!]!
+  user(id: Int!): User
+}
+
+type Mutation {
+  importCsv(filename: String!, contentBase64: String!): ImportSummary!
+  updateUser(id: Int!, input: UpdateUserInput!): User!
+}
