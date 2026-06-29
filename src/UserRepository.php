@@ -35,6 +35,34 @@ final class UserRepository
         ]);
     }
 
+    /**
+     * @return array<string, string|int>|null
+     */
+    public function findByHrId(string $hrId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, hr_id, first_name, last_name, email, department, is_active FROM users WHERE hr_id = :hr_id'
+        );
+        $stmt->execute([':hr_id' => $hrId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row === false ? null : $row;
+    }
+
+    /**
+     * @param array<string, string|int> $columns  Snake_case column => value pairs to SET.
+     */
+    public function update(int $id, array $columns): void
+    {
+        $sets = implode(', ', array_map(fn(string $col): string => "$col = :$col", array_keys($columns)));
+        $params = [':id' => $id];
+        foreach ($columns as $col => $val) {
+            $params[":$col"] = $val;
+        }
+
+        $this->pdo->prepare("UPDATE users SET $sets WHERE id = :id")->execute($params);
+    }
+
     public function existsByHrId(string $hrId): bool
     {
         $stmt = $this->pdo->prepare('SELECT 1 FROM users WHERE hr_id = :hr_id');

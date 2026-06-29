@@ -42,8 +42,20 @@ final class ImportRunner
                 continue;
             }
 
-            $this->repository->insert($row);
-            $summary->addImported();
+            $existing = $this->repository->findByHrId((string) $row['hr_id']);
+            if ($existing !== null) {
+                $this->repository->update((int) $existing['id'], [
+                    'first_name' => $row['first_name'],
+                    'last_name'  => $row['last_name'],
+                    'email'      => $row['email'],
+                    'department' => $row['department'] ?? '',
+                    'is_active'  => (int) $row['is_active'],
+                ]);
+                $summary->addUpdated();
+            } else {
+                $this->repository->insert($row);
+                $summary->addImported();
+            }
         }
 
         return $summary;
